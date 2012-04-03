@@ -1,0 +1,2 @@
+INDEX VERSION 1.126+C:\Users\Andy Lamping\workspace\step_1\dbsiProj2new\src\newnew\src\ProjFinal1\.metadata\.plugins\org.eclipse.jdt.core
+3438482582.index
