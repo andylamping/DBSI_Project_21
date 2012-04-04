@@ -74,7 +74,8 @@ public class Test {
 
 			}
 			else if (!args[1].equals("-i")){
-
+				// we want to query the file heapfile
+				HeapFile heapFile = new HeapFile(args[0], true, null, null, null);
 				
 				ArrayList<Condition> conditionList = new ArrayList<Condition>();
 				ArrayList<Condition> multiList = new ArrayList<Condition>();
@@ -91,7 +92,11 @@ public class Test {
 					// if argument contains an s, then we create a new condition, and advance 3 spots in the index
 					if(args[argIndex].contains("s")){
 						argCount++;
-						
+						int columnNumber = Integer.parseInt(args[argIndex].substring(args[argIndex].length()-1));
+						if(columnNumber > heapFile.numberOfFields){
+							System.out.println("Sorry. That column does not exist.");
+							return;
+						}
 						if(argCount > 1 && args[argIndex].equals(args[argIndex - 3])){
 							Condition condition = new Condition(args[argIndex], args[argIndex + 1], args[argIndex + 2]);
 					//	multiList.add(condition);
@@ -124,7 +129,7 @@ public class Test {
 				} // end of conditionlist, multilist maker and projectionlist maker
 
 				// prepare heap file
-				HeapFile heapFile = new HeapFile(args[0], true, null, null, null);
+				
 				Comparer comparer = new Comparer();
 				ArrayList<Integer> matchingRecords = new ArrayList<Integer>();
 				
