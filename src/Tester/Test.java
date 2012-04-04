@@ -100,7 +100,7 @@ public class Test {
 					if(args[argIndex].contains("s")){
 						argCount++;
 						int columnNumber = Integer.parseInt(args[argIndex].substring(2));
-						if(columnNumber > heapFile.numberOfFields){
+						if(columnNumber > heapFile.numberOfFields  || columnNumber == 0){
 							System.out.println("Sorry. That column for query does not exist.");
 							return;
 						}
@@ -131,7 +131,7 @@ public class Test {
 					// if argument contains a p, as in -p1, add this arg to projections and advance to next index
 					if(argIndex <= (args.length - 1) && args[argIndex].contains("p")){
 						int columnNumber = Integer.parseInt(args[argIndex].substring(2));
-						if(columnNumber > heapFile.numberOfFields){
+						if(columnNumber > heapFile.numberOfFields  || columnNumber == 0){
 							System.out.println("Sorry. That column for projection does not exist.");
 							return;
 						}
