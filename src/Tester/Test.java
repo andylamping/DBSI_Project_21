@@ -241,7 +241,7 @@ public class Test {
 					e++;
 				}
 
-				if(dummyRecords.size() > 0){
+				if(dummyRecords.size() > 1){
 					matchingRecords = conditionedRecords;
 				}
 
