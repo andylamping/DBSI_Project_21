@@ -101,7 +101,7 @@ public class Test {
 						argCount++;
 						int columnNumber = Integer.parseInt(args[argIndex].substring(2));
 						if(columnNumber > heapFile.numberOfFields){
-							System.out.println("Sorry. That column for qeury does not exist.");
+							System.out.println("Sorry. That column for query does not exist.");
 							return;
 						}
 						if(argCount > 1 && args[argIndex].equals(args[argIndex - 3])){
