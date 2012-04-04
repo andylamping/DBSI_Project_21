@@ -38,13 +38,13 @@ public class Record {
 					return 1;
 			}
 			if(op.equals(">")){
-				if(compareResult == 1)
+				if(compareResult == -1)
 					return 1;
 				else 
 					return 0;
 			}
 			if(op.equals("<")){
-				if(compareResult == -1)
+				if(compareResult == 1)
 					return 1;
 				else
 					return 0;
