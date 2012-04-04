@@ -168,7 +168,7 @@ public class HeapFile extends MyFile{
 				
 				comparer.compare_functions[schemaArray[j]].write(this.path, this.currentFileOffset, s[j], this.lengthArray[j]);
 			}
-			System.out.println("Record written to heap.");
+//			System.out.println("Record written to heap.");
 		}
 		
 	}
@@ -237,7 +237,7 @@ public class HeapFile extends MyFile{
 			this.currentFileOffset +=val.length;
 		}
 		
-		System.out.println("+1 Record read from the heap");
+//		System.out.println("+1 Record read from the heap");
 		
 		return result.substring(0, result.length()-1) +"\n";
 	}
