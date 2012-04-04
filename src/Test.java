@@ -92,9 +92,9 @@ public class Test {
 					// if argument contains an s, then we create a new condition, and advance 3 spots in the index
 					if(args[argIndex].contains("s")){
 						argCount++;
-						int columnNumber = Integer.parseInt(args[argIndex].substring(args[argIndex].length()-1));
+						int columnNumber = Integer.parseInt(args[argIndex].substring(2));
 						if(columnNumber > heapFile.numberOfFields){
-							System.out.println("Sorry. That column does not exist.");
+							System.out.println("Sorry. That column for qeury does not exist.");
 							return;
 						}
 						if(argCount > 1 && args[argIndex].equals(args[argIndex - 3])){
@@ -123,6 +123,11 @@ public class Test {
 
 					// if argument contains a p, as in -p1, add this arg to projections and advance to next index
 					if(argIndex <= (args.length - 1) && args[argIndex].contains("p")){
+						int columnNumber = Integer.parseInt(args[argIndex].substring(2));
+						if(columnNumber > heapFile.numberOfFields){
+							System.out.println("Sorry. That column for projection does not exist.");
+							return;
+						}
 						projectionList.add(args[argIndex]);
 						argIndex++;
 					}
