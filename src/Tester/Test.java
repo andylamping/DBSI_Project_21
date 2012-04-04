@@ -242,7 +242,7 @@ public class Test {
 				}
 
 				if(dummyRecords.size() > 0){
-//					matchingRecords = conditionedRecords;
+					matchingRecords = conditionedRecords;
 				}
 
 				if(projectionList.isEmpty()){
