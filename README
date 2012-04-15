@@ -1,0 +1,130 @@
+  DBSI Project 2.1      
+
+ac3402 | aml2194
+
+Read Me
+
+We have multiple packages
+
+Interfaces - This package stores the interface ‘Compare’ that holds method declarations - read, write, and compare.
+
+Compare - This package holds the classes that implement the ‘Compare’ interface for different possible datatypes that are in the CSV file input.
+
+Util - This package has the classes that are used in the program to parse the input, create the associated Heap and CSV Files.
+
+Helper - This package has the Helper class that holds the function to convert the data types used in the CSV file to bytes and write it to memory.
+
+Tester - This package holds the Main driver class that accepts the user input and generates the output.
+
+To execute
+cd project_folder_path/src/
+javac */*.java    ------ ignore the warnings.
+
+java Tester/Test heapfile -i “<” example.acsv    --- create a new heap , or append to an existing heap
+
+java Tester/Test heapfile  --- dump the heap contents to a CSV file example_result.acsv
+
+to see the resultant file - cat example_result.acsv
+
+Sample Tests
+
+Query heap file two conditions one column
+  heapfile -s1 <> orson -s1 <> ingrid -s3 = 1915
+In Linux : java Tester/test    heapfile "-s1" "<>" orson "-s1" "<>" ingrid "-s3" "=" 1915
+  Result: NONE
+  PASSED
+
+Query heap file three conditions one column, two on one column
+  heapfile -s1 <> orson -s1 <> andy -s3 > 1914 -s3 < 1916 -s3 <> 1915
+In Linux :  java Tester/Test heapfile "-s1" "<>" orson "-s1" "<>" andy "-s3" ">" 1914 "-s3" "<" 1916 "-s3" "<>" 1915
+Result: NONE
+  PASSED
+
+
+Query heap file three conditions one column, two on one column
+  heapfile -s1 <> orson -s1 <> andy -s3 > 1914 -s3 < 1916 -s3 = 1915
+In Linux : java Tester/Test heapfile "-s1" "<>" orson "-s1" "<>" andy "-s3" ">" 1914 "-s3" "<" 1916 "-s3" "=" 1915
+c9,c8,i2,r4
+  Result: Record (Ingrid)
+  PASSED
+
+Query heap file three conditions one column, two on one column, project column
+  heapfile -s1 <> orson -s1 <> andy -s3 > 1914 -s3 < 1916 -s3 = 1915 -p1
+in Linux : java Tester/Test heapfile "-s1" "<>" orson "-s1" "<>" andy "-s3" ">" 1914 "-s3" "<" 1916 "-s3" "=" 1915 -p1
+  Result: Ingrid
+  PASSED
+
+Query heap file three conditions one column, two on one column, project two columns
+  heapfile -s1 <> orson -s1 <> andy -s3 > 1914 -s3 < 1916 -s3 = 1915 -p1 -p2
+In Linux : java Tester/Test heapfile "-s1" "<>" orson "-s1" "<>" andy "-s3" ">" 1914 "-s3" "<" 1916 "-s3" "=" 1915 -p1 -p2
+  Result: Ingrid, Bergman
+  PASSED
+
+Query heap file three conditions one column, two on one column, illegal projection
+  heapfile -s1 <> orson -s1 <> andy -s3 > 1914 -s3 < 1916 -s3 = 1915 -p1 -p100
+In Linux : java Tester/Test heapfile "-s1" "<>" orson "-s1" "<>" andy "-s3" ">" 1914 "-s3" "<" 1916 "-s3" "=" 1915 -p1 -p100
+  Result: Sorry. That column for projection does not exist.
+  PASSED
+
+Query heap file three conditions one column, two on one column, illegal column selection
+   heapfile -s100 <> orson -s1 <> andy -s3 > 1914 -s3 < 1916 -s3 = 1915 -p1
+In Linux : java Tester/Test heapfile "-s100" "<>" orson "-s1" "<>" andy "-s3" ">" 1914 "-s3" "<" 1916 "-s3" "=" 1915 -p1
+   Result: Sorry. That column for query does not exist.
+   PASSED
+
+Query heap file two conditions on two columns
+   heapfile -s1 <> orson -s1 = ingrid -s4 > 1.70 -s4 < 1.80
+In Linux : java Tester/Test heapfile "-s1" "<>" orson "-s1" "=" ingrid "-s4" ">" 1.70 "-s4" "<" 1.80
+   Result: record (ingrid)
+   PASSED
+
+
+
+Print all records
+In Linux :     java Tester/Test heapfile
+
+cat example_result.acsv
+   heapfile
+   Result:
+   PASSED
+
+Append example.acsv to heap again, query: -s3 = 1915
+   Result: record (orson)
+               record (ingrid)
+               record (orson)
+               record (ingrid)
+    PASSED
+
+Query heap file two conditions on two columns
+   heapfile -s1 <> orson -s1 = ingrid -s4 > 1.70 -s4 < 1.80
+In Linux : java Tester/Test heapfile "-s1" "<>" orson "-s1" "=" ingrid "-s4" ">" 1.70 "-s4" "<" 1.80
+   Result: record (ingrid)
+                record (ingrid)
+   PASSED
+
+
+
+Query heap file two conditions on two columns, project 2nd column
+   heapfile -s1 <> orson -s1 = ingrid -s4 > 1.70 -s4 < 1.80 -p2
+In Linux : java Tester/Test heapfile "-s1" "<>" orson "-s1" "=" ingrid "-s4" ">" 1.70 "-s4" "<" 1.80 "-p2"
+   Result:  bergman
+                 bergman
+   PASSED
+
+Query heap file with illegal select column 0
+   heapfile -s0 <> orson -s1 = ingrid -s4 > 1.70 -s4 < 1.80
+in Linux :  java Tester/Test heapfile "-s0" "=" orson "-s1" "=" ingrid "-s4" ">" 1.70 -s4 "<" 1.80
+  Result: Sorry. That column for query does not exist.
+   PASSED
+
+Print all records
+   heapfile
+in Linux:  java Tester/Test heapfile
+   Result:
+   PASSED
+
+
+
+
+
+
