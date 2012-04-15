@@ -1,10 +1,17 @@
-  DBSI Project 2.1      
+DBSI Project 2.1      
 
 ac3402 | aml2194
 
 Read Me
+================
+This was part of 2 of Project 2 for COMS W4112.001 : DATABASE SYSTEM IMPLEMENTATION. 
+This part builds one component of a basic infrastructure for a database system, the heap file (a linear hash index is currently being built for Part 2
+and will be posted the week of April 23rd, 2012). The heap file has capability to insert records as well as search records (i.e., cursor facilities).
 
-We have multiple packages
+
+Packages
+--------
+We have multiple packages.
 
 Interfaces - This package stores the interface ‘Compare’ that holds method declarations - read, write, and compare.
 
@@ -16,9 +23,12 @@ Helper - This package has the Helper class that holds the function to convert th
 
 Tester - This package holds the Main driver class that accepts the user input and generates the output.
 
+
+Execution
+----------
 To execute
 cd project_folder_path/src/
-javac */*.java    ------ ignore the warnings.
+javac */*.java
 
 java Tester/Test heapfile -i “<” example.acsv    --- create a new heap , or append to an existing heap
 
@@ -26,8 +36,9 @@ java Tester/Test heapfile  --- dump the heap contents to a CSV file example_resu
 
 to see the resultant file - cat example_result.acsv
 
-Sample Tests
 
+Sample Tests
+-------------
 Query heap file two conditions one column
   heapfile -s1 <> orson -s1 <> ingrid -s3 = 1915
 In Linux : java Tester/test    heapfile "-s1" "<>" orson "-s1" "<>" ingrid "-s3" "=" 1915
