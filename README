@@ -5,6 +5,7 @@ ac3402 | aml2194
 Read Me
 ================
 This is part 1 of 2 of Project 2 for COMS W4112.001 : DATABASE SYSTEM IMPLEMENTATION. 
+The program is written entirely in Java.
 This part builds one component of a basic infrastructure for a database system, the heap file (a linear hash index is currently being built for Part 2
 and will be posted the week of April 23rd, 2012). The heap file has capability to insert records as well as search records (i.e., cursor facilities).
 
