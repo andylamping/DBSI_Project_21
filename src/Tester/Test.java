@@ -178,7 +178,7 @@ public class Test {
 							byte[] dumRec = new byte[heapFile.numberOfBytesPerRecord];
 							dummy.read(dumRec);
 
-							Record resultMan = new Record();
+							Record results = new Record();
 							int index = 0;
 							int reject = 0;
 							int match;
@@ -187,7 +187,7 @@ public class Test {
 								int answer;
 								if(compareList[index] == 1){
 									answer = comparer.compare_functions[heapFile.schemaArray[index]].compare(dumRec, offsetList[index], heapRec, offsetList[index],lengthList[index]);
-									match = resultMan.checkCompareResult(dummyRecords.get(m).get(condIndex1).operator, answer);
+									match = results.checkCompareResult(dummyRecords.get(m).get(condIndex1).operator, answer);
 									if(match == 0){
 										reject = 1;
 									}
