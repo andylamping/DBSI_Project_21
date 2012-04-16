@@ -161,16 +161,20 @@ public class HeapFile extends MyFile{
 	
 	public void writeContentAsBytesToHeapFile(int schemaArray[], ArrayList<String> contents){
 		Comparer comparer = new Comparer();
-		String s[];
+		String s;
 		for (int i = 0; i < contents.size(); i++){
-			s = contents.get(i).split(",");
-			for (int j = 0; j < s.length; j++){
-				
-				comparer.compare_functions[schemaArray[j]].write(this.path, this.currentFileOffset, s[j], this.lengthArray[j]);
-			}
+			s = contents.get(i);
+			writeRecordAsByteToHeapFile(s);
 //			System.out.println("Record written to heap.");
 		}
 		
+	}
+	private void writeRecordAsByteToHeapFile(String record){
+		Comparer comparer = new Comparer();
+		String s[] = record.split(",");
+		for (int j = 0; j<s.length ; j++){
+			comparer.compare_functions[schemaArray[j]].write(path, currentFileOffset, s[j], lengthArray[j]);
+		}
 	}
 
 	public void getNumberOfBytesPerRecord (){

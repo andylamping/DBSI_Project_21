@@ -9,7 +9,7 @@ public class MyFile {
 	public int [] schemaArray;
 	public int [] lengthArray;
 	
-	protected void getSchemaArrayFromSchema(){
+	public void getSchemaArrayFromSchema(){
 		Comparer comparer = new Comparer();
 		String subSchema[] = this.schema.split(",");
 		lengthArray = new int[subSchema.length];

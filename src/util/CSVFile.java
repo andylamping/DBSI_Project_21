@@ -16,15 +16,6 @@ public class CSVFile extends MyFile{
 	public CSVFile (String path, ArrayList<String> contentFromHeap){
 		this.path = path;
 		contents = new ArrayList<String>();
-		if (contentFromHeap == null){
-			this.getContentsFromFile();
-			this.getSchemaFromContents();
-			this.getSchemaArrayFromSchema();	
-		}else {
-			contents = contentFromHeap;
-			this.getSchemaFromContents();
-			this.writeRecordToFile();
-		}
 
 	}
 	
@@ -43,12 +34,14 @@ public class CSVFile extends MyFile{
 		
 	}
 
-	private void writeRecordToFile() {
+	public void writeRecordToFile() {
 		try {
 			RandomAccessFile raf = new RandomAccessFile(new File(this.path), "rw");
-			raf.writeChars(this.schema);
+			raf.writeUTF(this.schema.replaceAll("\\s", "AND")+"\n");
+			System.out.println(this.schema);
 			for (String s:this.contents){
-				raf.writeChars(s);
+				raf.writeUTF(s.replaceAll("\\s", "AND")+"\n");
+				System.out.println(s);
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -60,7 +53,7 @@ public class CSVFile extends MyFile{
 		
 	}
 
-	private void getContentsFromFile() {
+	public void getContentsFromFile() {
 		// TODO Auto-generated method stub
 		BufferedReader br;
 		try {
@@ -81,7 +74,7 @@ public class CSVFile extends MyFile{
 
 	}
 
-	private void getSchemaFromContents(){
+	public void getSchemaFromContents(){
 		this.schema = this.contents.remove(0);
 	}
 

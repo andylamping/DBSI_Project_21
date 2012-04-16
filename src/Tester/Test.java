@@ -23,9 +23,18 @@ public class Test {
 		 */
 		if (args.length == 1){
 			HeapFile heapFile = new HeapFile(args[0], true, null, null, null);
-
-			CSVFile csvTarget = new CSVFile("example_result.acsv", heapFile.getContentsFromHeapFile());
-
+			ArrayList<String> contentsFromHeap = heapFile.getContentsFromHeapFile();
+			CSVFile csvTarget = new CSVFile("example_result.acsv",contentsFromHeap );
+			if (contentsFromHeap== null){
+				csvTarget.getContentsFromFile();
+				csvTarget.getSchemaFromContents();
+				csvTarget.getSchemaArrayFromSchema();
+			}else{
+				csvTarget.contents = contentsFromHeap;
+				csvTarget.getSchemaFromContents();
+				csvTarget.writeRecordToFile();
+				
+			}
 		}
 
 		/*
@@ -53,7 +62,7 @@ public class Test {
 				/**
 				 * If format is correct, we need to check if heapfile already exists.
 				 */
-				// TODO check if heap file already exists.
+				//Check if heap file already exists.
 				File f = new File(args[0]);
 				if (!f.exists()){
 					/*
@@ -61,6 +70,9 @@ public class Test {
 					 * schema from the CSV file.
 					 */
 					CSVFile csvSource = new CSVFile(args[3], null);
+					csvSource.getContentsFromFile();
+					csvSource.getSchemaFromContents();
+					csvSource.getSchemaArrayFromSchema();
 					HeapFile hfNew = new HeapFile(args[0], false, csvSource.schema, csvSource.schemaArray, csvSource.contents);
 					hfNew.writeContentAsBytesToHeapFile(csvSource.schemaArray, csvSource.contents);
 				}else{
