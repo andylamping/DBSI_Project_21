@@ -24,16 +24,17 @@ public class Test {
 		if (args.length == 1){
 			HeapFile heapFile = new HeapFile(args[0], true, null, null, null);
 			ArrayList<String> contentsFromHeap = heapFile.getContentsFromHeapFile();
-			CSVFile csvTarget = new CSVFile("example_result.acsv",contentsFromHeap );
 			if (contentsFromHeap== null){
+				CSVFile csvTarget = new CSVFile("example_result.acsv");
 				csvTarget.getContentsFromFile();
 				csvTarget.getSchemaFromContents();
 				csvTarget.getSchemaArrayFromSchema();
 			}else{
+				CSVFile csvTarget = new CSVFile("example_result.acsv",contentsFromHeap );
 				csvTarget.contents = contentsFromHeap;
 				csvTarget.getSchemaFromContents();
-				csvTarget.writeRecordToFile();
-				
+				csvTarget.writeRecordToFileUsingBufferedWriter();
+
 			}
 		}
 
@@ -53,7 +54,7 @@ public class Test {
 					return;
 				}
 
-				// check for valid .csv file
+				// check for valid .csv file extension
 				if(!args[3].contains(".acsv")){
 					System.out.println("Please enter valid .acsv file.");
 					return;
@@ -96,19 +97,20 @@ public class Test {
 				// we want to query the file heapfile
 				HeapFile heapFile = new HeapFile(args[0], true, null, null, null);
 
-				ArrayList<Condition> conditionList = new ArrayList<Condition>();
-				ArrayList<Condition> multiList = new ArrayList<Condition>();
+				//ArrayList<Condition> conditionList = new ArrayList<Condition>();
+				//ArrayList<Condition> multiList = new ArrayList<Condition>();
 				ArrayList<String> projectionList = new ArrayList<String>();
 				int argIndex = 1;
 				int argCount = 0;
 				int multiCondition = 0;
-				int multiCount = 0;
+				//int multiCount = 0;
 				ArrayList<ArrayList<Condition>> dummyRecords  = new ArrayList<ArrayList<Condition>>();
 				ArrayList<Condition> first = new ArrayList<Condition>();
 				dummyRecords.add(first);
 				// traverse command line and add condition(s) to conditionList
 				while(argIndex <= (args.length - 1)){
-					// if argument contains an s, then we create a new condition, and advance 3 spots in the index
+					// if argument contains an s, then we create a new condition, 
+					//and advance 3 spots in the index
 					if(args[argIndex].contains("s")){
 						argCount++;
 						int columnNumber = Integer.parseInt(args[argIndex].substring(2));
@@ -160,7 +162,7 @@ public class Test {
 				int m =  0;
 				int[] offsetList = heapFile.getOffsetList();
 
-				int firstListCheck = 0;
+				//				int firstListCheck = 0;
 				while(m < dummyRecords.size()){
 
 					int[] compareList = new int[heapFile.schemaArray.length];
@@ -262,9 +264,11 @@ public class Test {
 					String outputString = heapFile.getCertainRecordsFromHeapFile(matchingRecords);
 					System.out.println(outputString);
 					ArrayList<String> s = new ArrayList<String>();
-					//s.add(heapFile.schema);
+					s.add(heapFile.schema+"\n");
 					s.add(outputString);
 					CSVFile output = new CSVFile("example_output.acsv", s);
+					output.getSchemaFromContents();
+					output.writeRecordToFileUsingBufferedWriter();
 				}
 				else{
 					String[] transfer = new String[projectionList.size()];
@@ -302,9 +306,12 @@ public class Test {
 						d++;
 					}
 
-					String output = heapFile.getProjectionRecords(matchingRecords, projSubSchema, projSchemaArray, projOffsetList, projLengthArray);
+					//String output = heapFile.getProjectionRecords(matchingRecords, projSubSchema, projSchemaArray, projOffsetList, projLengthArray);
+					ArrayList<String> projectionOutput = heapFile.getProjectionRecordsAsArrayList(matchingRecords, projSubSchema, projSchemaArray, projOffsetList, projLengthArray);
 					//	CSVFile csvTarget = new CSVFile("example_result.acsv", output, 0);
-
+					CSVFile csvTarget = new CSVFile("example_output", projectionOutput);
+					csvTarget.getSchemaFromContents();
+					csvTarget.writeRecordToFileUsingBufferedWriter();
 				}
 
 
