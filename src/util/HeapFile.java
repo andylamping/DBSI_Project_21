@@ -69,13 +69,13 @@ public class HeapFile extends MyFile{
 		}
 	}
 
+	/*
+	 * Write the header information to 
+	 * the file, 
+	 * Number of Records, Number of Fields, No. of Bytes in Schema
+	 * Schema, No. of Bytes in Index Data, Index Data.
+	 */
 	public void writeHeaderInformationToFile(){
-		/*
-		 * Write the header information to 
-		 * the file, 
-		 * Number of Records, Number of Fields, No. of Bytes in Schema
-		 * Schema, No. of Bytes in Index Data, Index Data.
-		 */
 
 		File f = new File(this.path);
 		RandomAccessFile raf;
@@ -94,14 +94,16 @@ public class HeapFile extends MyFile{
 			this.offsetSchema = this.currentFileOffset = raf.getFilePointer();
 			raf.write(Helper.toByta(this.schema));
 
-//			//Total number of Bytes in the indexData.
-//			this.offsetNumberOfBytesInIndexData = this.currentFileOffset = raf.getFilePointer();
-//			raf.write(Helper.toByta(indexData.length));
-//
-//			//Write the indexData.
-//			this.offsetIndexData = this.currentFileOffset = raf.getFilePointer();
-//			raf.write(Helper.toByta(indexData));
-//			this.currentFileOffset = raf.getFilePointer();
+			//Total number of Bytes in the indexData.
+			this.offsetNumberOfBytesInIndexData = this.currentFileOffset = raf.getFilePointer();
+			raf.write(Helper.toByta(indexData.length*4));
+
+			//Write the indexData.
+			this.offsetIndexData = this.currentFileOffset = raf.getFilePointer();
+			for (int i = 0 ; i < indexData.length; i ++){
+				raf.write(Helper.toByta(indexData[i]));
+			}
+			this.currentFileOffset = raf.getFilePointer();
 
 			raf.close();
 
@@ -142,15 +144,19 @@ public class HeapFile extends MyFile{
 			raf.read(tempSchema,0,numberOfBytesInSchema);
 			this.schema = new String(tempSchema);
 
-//			this.offsetNumberOfBytesInIndexData = this.currentFileOffset = raf.getFilePointer();
-//			raf.read(b,0,4);
-//			this.numberOfBytesInIndexData = Helper.toInt(b);
-//
-//			this.offsetIndexData = this.currentFileOffset = raf.getFilePointer();
-//			byte[] tempIndexData = new byte [numberOfBytesInIndexData];
-//			raf.read(tempIndexData, 0, numberOfBytesInIndexData);
-//			this.indexData = Helper.toIntA(tempIndexData);
+			this.offsetNumberOfBytesInIndexData = this.currentFileOffset = raf.getFilePointer();
+			raf.read(b,0,4);
+			this.numberOfBytesInIndexData = Helper.toInt(b);
 
+			this.offsetIndexData = this.currentFileOffset = raf.getFilePointer();
+//			byte[] tempIndexData = new byte [4];
+
+			this.indexData = new int [this.numberOfBytesInIndexData/4];
+			for (int i = 0 ; i< (this.numberOfBytesInIndexData/4) ; i++){
+
+				raf.read(b, 0, 4);
+				this.indexData[i] = Helper.toInt(b);
+			}
 			// Offset after Header information has been read.
 			this.offsetEndOfHeader = this.currentFileOffset = raf.getFilePointer();
 
