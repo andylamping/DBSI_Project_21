@@ -82,7 +82,7 @@ public class Compare_i1 implements Compare{
 
 	@Override
 	public String readString(String path, int offset, int length) {
-		return (Helper.toInt(read (path, offset, length)) +"");
+		return (Helper.toInt1(read (path, offset, length)) +"");
 	}
 
 

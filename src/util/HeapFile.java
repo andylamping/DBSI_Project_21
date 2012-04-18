@@ -94,14 +94,14 @@ public class HeapFile extends MyFile{
 			this.offsetSchema = this.currentFileOffset = raf.getFilePointer();
 			raf.write(Helper.toByta(this.schema));
 
-			//Total number of Bytes in the indexData.
-			this.offsetNumberOfBytesInIndexData = this.currentFileOffset = raf.getFilePointer();
-			raf.write(Helper.toByta(indexData.length));
-
-			//Write the indexData.
-			this.offsetIndexData = this.currentFileOffset = raf.getFilePointer();
-			raf.write(Helper.toByta(indexData));
-			this.currentFileOffset = raf.getFilePointer();
+//			//Total number of Bytes in the indexData.
+//			this.offsetNumberOfBytesInIndexData = this.currentFileOffset = raf.getFilePointer();
+//			raf.write(Helper.toByta(indexData.length));
+//
+//			//Write the indexData.
+//			this.offsetIndexData = this.currentFileOffset = raf.getFilePointer();
+//			raf.write(Helper.toByta(indexData));
+//			this.currentFileOffset = raf.getFilePointer();
 
 			raf.close();
 
@@ -142,14 +142,14 @@ public class HeapFile extends MyFile{
 			raf.read(tempSchema,0,numberOfBytesInSchema);
 			this.schema = new String(tempSchema);
 
-			this.offsetNumberOfBytesInIndexData = this.currentFileOffset = raf.getFilePointer();
-			raf.read(b,0,4);
-			this.numberOfBytesInIndexData = Helper.toInt(b);
-
-			this.offsetIndexData = this.currentFileOffset = raf.getFilePointer();
-			byte[] tempIndexData = new byte [numberOfBytesInIndexData];
-			raf.read(tempIndexData, 0, numberOfBytesInIndexData);
-			this.indexData = Helper.toIntA(tempIndexData);
+//			this.offsetNumberOfBytesInIndexData = this.currentFileOffset = raf.getFilePointer();
+//			raf.read(b,0,4);
+//			this.numberOfBytesInIndexData = Helper.toInt(b);
+//
+//			this.offsetIndexData = this.currentFileOffset = raf.getFilePointer();
+//			byte[] tempIndexData = new byte [numberOfBytesInIndexData];
+//			raf.read(tempIndexData, 0, numberOfBytesInIndexData);
+//			this.indexData = Helper.toIntA(tempIndexData);
 
 			// Offset after Header information has been read.
 			this.offsetEndOfHeader = this.currentFileOffset = raf.getFilePointer();

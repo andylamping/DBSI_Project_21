@@ -236,6 +236,10 @@ public class Helper {
 				(0xff & data[3]) << 0
 				);
 	}
+	public static int toInt1 (byte[] data){
+		if (data == null || data.length != 1) return 0x0;
+		return (int)((0xff & data[0])<<0);
+	}
 	public static int[] toIntA(byte[] data) {
 		if (data == null || data.length % 4 != 0) return null;
 		// ----------

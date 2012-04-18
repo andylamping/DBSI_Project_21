@@ -64,10 +64,10 @@ public class CSVFile extends MyFile{
 	public void writeRecordToFileUsingBufferedWriter(){
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(path)));
-			bw.write(schema);
+			bw.write(schema+"\n");
 			if (Config.DEBUG) System.out.println(schema);
 			for (String s:this.contents){
-				bw.write(s);
+				bw.write(s+"\n");
 				if (Config.DEBUG) System.out.println(s);
 			}
 			bw.close();
