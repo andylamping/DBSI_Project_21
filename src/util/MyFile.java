@@ -15,7 +15,7 @@ public class MyFile {
 		lengthArray = new int[subSchema.length];
 		
 		for(int j = 0; j < subSchema.length; j++){
-			lengthArray[j] = Integer.parseInt(subSchema[j].substring(subSchema[j].length()-1));
+			lengthArray[j] = Integer.parseInt(subSchema[j].substring(1));
 		}
 		
 		int tempArray[] = new int [subSchema.length];

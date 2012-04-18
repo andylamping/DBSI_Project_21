@@ -21,10 +21,21 @@ public class HeapFile extends MyFile{
 	public int numberOfFields;
 	public int numberOfRecords;
 	public int numberOfBytesPerRecord;
+	public int numberOfBytesInIndexData;
 
 	public long currentFileOffset = 0;
 	public int numberOfBytesInSchema;
 	boolean headerRead = false;
+	public int [] indexData;
+
+	// Intermediate FileOffsets
+	public long offsetNumberOfRecords = 0;
+	public long offsetNumberOfFields = 0;
+	public long offsetNumberOfBytesInSchema = 0;
+	public long offsetSchema = 0;
+	public long offsetNumberOfBytesInIndexData = 0;
+	public long offsetIndexData = 0;
+	public long offsetEndOfHeader = 0;
 
 	public HeapFile (String path,boolean fileExists, 
 			String schema,int schemaArray[],ArrayList<String> contents){
@@ -52,17 +63,18 @@ public class HeapFile extends MyFile{
 
 			this.getNumberOfBytesPerRecord();
 			this.getSchemaArrayFromSchema();
+			this.indexData = new int [this.schemaArray.length];
 			this.writeHeaderInformationToFile();
 
 		}
 	}
 
 	public void writeHeaderInformationToFile(){
-		/**
+		/*
 		 * Write the header information to 
 		 * the file, 
 		 * Number of Records, Number of Fields, No. of Bytes in Schema
-		 * Schema
+		 * Schema, No. of Bytes in Index Data, Index Data.
 		 */
 
 		File f = new File(this.path);
@@ -70,34 +82,42 @@ public class HeapFile extends MyFile{
 		try {
 			raf = new RandomAccessFile(f, "rw");
 
+			this.offsetNumberOfRecords = 0;
 			raf.write(Helper.toByta(this.numberOfRecords));
-			this.currentFileOffset = raf.getFilePointer();
 
+			this.offsetNumberOfFields = this.currentFileOffset = raf.getFilePointer();
 			raf.write(Helper.toByta(this.numberOfFields));
-			this.currentFileOffset = raf.getFilePointer();
 
+			this.offsetNumberOfBytesInSchema = this.currentFileOffset = raf.getFilePointer();
 			raf.write(Helper.toByta(this.numberOfBytesInSchema));
-			this.currentFileOffset = raf.getFilePointer();
 
+			this.offsetSchema = this.currentFileOffset = raf.getFilePointer();
 			raf.write(Helper.toByta(this.schema));
+
+			//Total number of Bytes in the indexData.
+			this.offsetNumberOfBytesInIndexData = this.currentFileOffset = raf.getFilePointer();
+			raf.write(Helper.toByta(indexData.length));
+
+			//Write the indexData.
+			this.offsetIndexData = this.currentFileOffset = raf.getFilePointer();
+			raf.write(Helper.toByta(indexData));
 			this.currentFileOffset = raf.getFilePointer();
 
 			raf.close();
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Write header information - File not found!");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	public void getHeaderInformationFromFile(){
-		/**
-		 * TODO Read the schema as byte array,
-		 * Convert to String and then map to 
-		 * comparer class.
+		/*
+		 * Reads Header information from the file and 
+		 * sets the appropriate data fields.
+		 * Also, updates the required offset values.
 		 */
 		File f = new File(this.path);
 		RandomAccessFile raf;
@@ -105,58 +125,75 @@ public class HeapFile extends MyFile{
 			raf = new RandomAccessFile(f, "rw");
 			byte b[] = new byte [4];
 
+			this.offsetNumberOfRecords = 0;
 			raf.read(b, 0, 4);
 			this.numberOfRecords = Helper.toInt(b);
-			this.currentFileOffset = raf.getFilePointer();
 
-
+			this.offsetNumberOfFields = this.currentFileOffset = raf.getFilePointer();
 			raf.read(b, 0, 4);
 			this.numberOfFields = Helper.toInt(b);
-			this.currentFileOffset = raf.getFilePointer();
 
+			this.offsetNumberOfBytesInSchema = this.currentFileOffset = raf.getFilePointer();
 			raf.read(b, 0, 4);
 			this.numberOfBytesInSchema = Helper.toInt(b);
-			this.currentFileOffset = raf.getFilePointer();
 
+			this.offsetSchema = this.currentFileOffset = raf.getFilePointer();
 			byte [] tempSchema = new byte [numberOfBytesInSchema];
-
 			raf.read(tempSchema,0,numberOfBytesInSchema);
 			this.schema = new String(tempSchema);
-			this.currentFileOffset = raf.getFilePointer();
+
+			this.offsetNumberOfBytesInIndexData = this.currentFileOffset = raf.getFilePointer();
+			raf.read(b,0,4);
+			this.numberOfBytesInIndexData = Helper.toInt(b);
+
+			this.offsetIndexData = this.currentFileOffset = raf.getFilePointer();
+			byte[] tempIndexData = new byte [numberOfBytesInIndexData];
+			raf.read(tempIndexData, 0, numberOfBytesInIndexData);
+			this.indexData = Helper.toIntA(tempIndexData);
+
+			// Offset after Header information has been read.
+			this.offsetEndOfHeader = this.currentFileOffset = raf.getFilePointer();
 
 			raf.close();
 
 			headerRead = true;
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Reading Header information- File not found!");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
 
-	public void writeHeaderToFile(int schemaArray[]){
+	public void updateIndexData (int [] newIndexData){
+		// Get the union of the existing Index Data 
+		// and the updated Index
+		int []tempIndexData = new int[this.numberOfBytesInIndexData];
+		for (int i = 0; i< this.numberOfBytesInIndexData ; i++){
+			if (this.indexData [i] == 1 || newIndexData[i] == 1)
+				tempIndexData[i] = 1;
+		}
 
-		File f = new File(this.path);
+		this.indexData = tempIndexData;
+
+		//Write the updated Index data to the header
+		RandomAccessFile raf;
 		try {
-			RandomAccessFile raf = new RandomAccessFile(f, "rw");
-			// First line is the schema ;
-			raf.write(this.schema.getBytes(),(int) this.currentFileOffset, this.schema.getBytes().length);
-			this.currentFileOffset = raf.getFilePointer();
-			// Second line is the number of fields;
-			// Third line is the number of records;
+			raf = new RandomAccessFile(new File(this.path), "rw");
+			raf.seek(this.offsetIndexData);
+			raf.write(Helper.toByta(indexData));
+			raf.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println("To update the Index Data - The file cannot be found");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+
 	}
-	
 
 	public void writeContentAsBytesToHeapFile(int schemaArray[], ArrayList<String> contents){
 		String s;
@@ -172,8 +209,9 @@ public class HeapFile extends MyFile{
 		String s[] = record.split(",");
 		for (int j = 0; j<s.length ; j++){
 			comparer.compare_functions[schemaArray[j]].write(path, currentFileOffset, s[j], lengthArray[j]);
-			if (Config.DEBUG) System.out.println("Record "+ j  +" written to the file");
+			this.currentFileOffset += lengthArray[j];
 		}
+		if (Config.DEBUG) System.out.println("Record written to the file");
 	}
 
 	public void getNumberOfBytesPerRecord (){
@@ -223,7 +261,7 @@ public class HeapFile extends MyFile{
 		if (!this.headerRead)
 			this.getHeaderInformationFromFile();
 		ArrayList<String> contentStrings = new ArrayList<String>();
-		contentStrings.add(this.schema +"\n");
+		contentStrings.add(this.schema);
 		for (int i = 0 ;i< this.numberOfRecords; i++)
 			contentStrings.add (getRecordFromHeapFile());
 
@@ -242,14 +280,14 @@ public class HeapFile extends MyFile{
 
 		//		System.out.println("+1 Record read from the heap");
 
-		return result.substring(0, result.length()-1) +"\n";
+		return result.substring(0, result.length()-1);
 	}
 
 	public String getCertainRecordsFromHeapFile(ArrayList<Integer> matchingRecords){
 		String result = "";
 
 		String total = "";
-//		total += this.schema + '\n';
+		//		total += this.schema + '\n';
 		byte [] val;
 		Comparer comparer = new Comparer();
 		int j = 0;
@@ -283,23 +321,22 @@ public class HeapFile extends MyFile{
 		try {
 			raf = new RandomAccessFile(f, "rw");
 
-			raf.seek(0);
+			raf.seek(this.offsetNumberOfRecords);
 			byte b[] = new byte [4];
 			raf.read(b);
 			int data = Helper.toInt(b);
 
 			data += Contents.size();
 
-			raf.seek(0);
+			raf.seek(this.offsetNumberOfRecords);
 			raf.write(Helper.toByta(data));
 
 			raf.close();
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Update Number of Records - File not found!");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -315,10 +352,10 @@ public class HeapFile extends MyFile{
 				i++;
 			}
 			projectionSchemaAndRecords.add(tempSchema+"\n");
-			
+
 			Comparer comparer = new Comparer();
 			int j = 0;
-			
+
 			while( j < records.size()){
 				String result = "";
 				long position = this.currentFileOffset + this.numberOfBytesPerRecord * records.get(j);
@@ -373,10 +410,9 @@ public class HeapFile extends MyFile{
 			System.out.println(total);
 			return total;
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Get Projection records - File not found!");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return total;

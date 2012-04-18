@@ -70,7 +70,7 @@ public class Test {
 					 * If file doesn't exist, we create a new file with the 
 					 * schema from the CSV file.
 					 */
-					CSVFile csvSource = new CSVFile(args[3], null);
+					CSVFile csvSource = new CSVFile(args[3]);
 					csvSource.getContentsFromFile();
 					csvSource.getSchemaFromContents();
 					csvSource.getSchemaArrayFromSchema();
