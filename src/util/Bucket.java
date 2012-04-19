@@ -18,6 +18,7 @@ public class Bucket {
 	public static ArrayList<Bucket> freeBuckets = new ArrayList<Bucket>();
 
 	private Integer maxSize;
+	private Integer currentSize;
 	private Long overflowOffset;
 	public Object [][] data;
 
@@ -25,6 +26,7 @@ public class Bucket {
 	public Bucket(Integer maxSize,Long overflowOffset){
 
 		this.maxSize = maxSize;
+		this.currentSize = 0;
 		this.overflowOffset = overflowOffset;
 		this.data = new Object [this.maxSize][2];
 	}
@@ -41,6 +43,7 @@ public class Bucket {
 			raf.seek(offset);
 
 			raf.write(Helper.toByta(this.maxSize));
+			raf.write(Helper.toByta(this.currentSize));
 			raf.close();
 
 			for (int i = 0; i< this.maxSize ; i ++){
@@ -56,6 +59,28 @@ public class Bucket {
 		}
 	}
 
+	public boolean writeInfoToBucket(Object data, Long ptr){
+		if (this.currentSize == this.maxSize){
+			/*
+			 * Bucket is full
+			 * TODO Create a overflow bucket
+			 * return false
+			 */
+			return false;
+		}else {
+			/*
+			 * There is space in the bucket.
+			 * Insert the entry 
+			 * return true
+			 */
+			this.data[this.currentSize][0] = data;
+			this.data[this.currentSize][1] = ptr;
+			this.currentSize ++;
+			return true;
+		}
+		
+		
+	}
 	// TODO Implementation pending
 	public Bucket readBucketFromFile(String path, Long offset, String datatype){
 		RandomAccessFile raf;
@@ -69,6 +94,8 @@ public class Bucket {
 
 			raf.read(tempData);
 			temp.maxSize = Helper.toInt(tempData);
+			raf.read(tempData);
+			temp.currentSize = Helper.toInt(tempData);
 			tempOffset = raf.getFilePointer();
 			raf.close();
 
@@ -104,6 +131,12 @@ public class Bucket {
 	public void setOverflowOffset(Long overflowOffset) {
 		this.overflowOffset = overflowOffset;
 	}
+	public Integer getCurrentSize() {
+		return currentSize;
+	}
+	public void setCurrentSize(Integer currentSize) {
+		this.currentSize = currentSize;
+	}
 
 	// Inserts dummy values into the data of the bucket 
 	// so as to test the system.
@@ -127,6 +160,7 @@ public class Bucket {
 		}
 		return result;
 	}
+
 
 
 }

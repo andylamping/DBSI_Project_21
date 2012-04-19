@@ -12,9 +12,11 @@ public class IndexFile {
 	private String path;
 	private String overFlowPath;
 	private Integer nextPointer;
+	private String dataType;
 	private Integer columnLength;
 	private Integer headerLength = 12;
 	private Integer numberOfBuckets = 4;
+	private Integer numberOfEntriesInBucket;
 	
 	// Intermediate Offset values
 	public long offsetHeaderLength = 0;
@@ -27,6 +29,12 @@ public class IndexFile {
 		this.path = path;
 	}
 	
+	public Integer sizeOfBucket(){
+		/* 
+		 * Integer - maxSize + currentSize + Long - OffsetPointer + size of the 2D Object Data array 
+		 */
+		return (4 + 4 + 8 +(this.numberOfEntriesInBucket * (this.columnLength + 8)));
+	}
 	
 	public void writeHeaderInformationToFile (){
 		/*
@@ -109,14 +117,31 @@ public class IndexFile {
 		// TODO Auto-generated method stub
 		
 		/*
+		 *  ------ DONE -----
 		 *  GOTO nth bucket using formula - 
 		 *  this.currentFileOffset + (Size of each record * n);
 		 *  
 		 *  READ the entire bucket into memory, check if space exists.
+		 *  TODO
 		 *  If yes, then write to memory.
-		 *  else, READ the overflow bucket into memory,
+		 *   else, READ the overflow bucket into memory,
 		 *  	check if space exists.
 		 */
+		
+		Long destinationOffset = this.currentFileOffset + ((destinationBucketNumber -1)*sizeOfBucket());
+		
+		Bucket d = new Bucket(this.numberOfEntriesInBucket, null); 
+		d = d.readBucketFromFile(path, destinationOffset, this.dataType);
+		
+		if (d.writeInfoToBucket(data, ptr)){
+			// Successfully entered into the same bucket
+			
+		}else {
+			/*	No space in the current bucket.
+			 *  TODO Overflow logic.
+			 */
+		}
+		d.writeBucketToFile(path, destinationOffset, dataType);
 		
 		
 	}

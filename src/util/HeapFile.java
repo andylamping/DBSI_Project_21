@@ -176,6 +176,7 @@ public class HeapFile extends MyFile{
 	public void updateIndexData (int [] newIndexData){
 		// Get the union of the existing Index Data 
 		// and the updated Index
+		
 		int []tempIndexData = new int[this.numberOfBytesInIndexData];
 		for (int i = 0; i< this.numberOfBytesInIndexData ; i++){
 			if (this.indexData [i] == 1 || newIndexData[i] == 1)
