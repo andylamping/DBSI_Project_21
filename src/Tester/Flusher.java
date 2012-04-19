@@ -21,8 +21,14 @@ public class Flusher {
 //		System.out.println(b.getClass());
 		
 		b.writeBucketToFile("flush", (long) 0, "i4");
+		
 		Bucket c = b.readBucketFromFile("flush", (long) 0, "i4");
 		
+		System.out.println("Print B");
+		System.out.println(b);
+		System.out.println("Print C");
+		System.out.println(c);
+		System.out.println("done!");
 	}
 
 

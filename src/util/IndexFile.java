@@ -14,6 +14,7 @@ public class IndexFile {
 	private Integer nextPointer;
 	private Integer columnLength;
 	private Integer headerLength = 12;
+	private Integer numberOfBuckets = 4;
 	
 	// Intermediate Offset values
 	public long offsetHeaderLength = 0;
@@ -117,6 +118,7 @@ public class IndexFile {
 		 *  	check if space exists.
 		 */
 		
+		
 	}
 
 
@@ -128,7 +130,11 @@ public class IndexFile {
 		// TODO divide hashcode with the appropriate
 		// function - so that the value lies within the correct 
 		// set of buckets.
-		return data.hashCode(); 
+		
+		Integer b = data.hashCode() % this.numberOfBuckets;
+		if (b < this.nextPointer)
+			b = data.hashCode() % (2*this.numberOfBuckets);
+		return b; 
 		
 	}
 	

@@ -29,9 +29,10 @@ public class Bucket {
 		this.data = new Object [this.maxSize][2];
 	}
 
-	// TODO Implementation pending
+
 	public void writeBucketToFile(String path, Long offset, String datatype){
 
+		//		this.writeData(); // For testing purposes.
 		RandomAccessFile raf ;
 		Comparer comparer = new Comparer();
 
@@ -41,10 +42,7 @@ public class Bucket {
 
 			raf.write(Helper.toByta(this.maxSize));
 			raf.close();
-			/*
-			 * TODO write the data to the index file as 
-			 * 		columnValue pointer columnValue pointer ... and so on.
-			 */
+
 			for (int i = 0; i< this.maxSize ; i ++){
 				// Use appropriate write method based on the datatype that the index file holds.
 				comparer.compare_functions[comparer.mapper.indexOf(datatype)].write(path, 0, this.data[i][0]+"", Integer.parseInt(datatype.substring(1)));
@@ -61,6 +59,7 @@ public class Bucket {
 	// TODO Implementation pending
 	public Bucket readBucketFromFile(String path, Long offset, String datatype){
 		RandomAccessFile raf;
+		Bucket temp = new Bucket(this.maxSize, (long) 0);
 		byte[] tempData = new byte[4];
 		long tempOffset = 0;
 		Comparer comparer = new Comparer();
@@ -69,15 +68,18 @@ public class Bucket {
 			raf.seek(offset);
 
 			raf.read(tempData);
-			this.maxSize = Helper.toInt(tempData);
+			temp.maxSize = Helper.toInt(tempData);
 			tempOffset = raf.getFilePointer();
 			raf.close();
-			
+
 			for (int i = 0; i< this.maxSize ; i++){
-				this.data[i][0] = comparer.compare_functions[comparer.mapper.indexOf(datatype)].readString(path, (int) tempOffset, Integer.parseInt(datatype.substring(1)));
+				temp.data[i][0] = comparer.compare_functions[comparer.mapper.indexOf(datatype)].readString(path, (int) tempOffset, Integer.parseInt(datatype.substring(1)));
 				tempOffset += Integer.parseInt(datatype.substring(1));
-				this.data[i][1] = comparer.compare_functions[3].readString(path, (int) tempOffset, 8);
+				temp.data[i][1] = comparer.compare_functions[3].readString(path, (int) tempOffset, 8);
+				tempOffset += 8;
 			}
+
+			return temp;
 		}catch(FileNotFoundException e){
 			e.printStackTrace();
 		}catch(IOException e){
@@ -101,6 +103,29 @@ public class Bucket {
 	}
 	public void setOverflowOffset(Long overflowOffset) {
 		this.overflowOffset = overflowOffset;
+	}
+
+	// Inserts dummy values into the data of the bucket 
+	// so as to test the system.
+	public void writeData() {
+		// TODO Auto-generated method stub
+		this.data [0][0]=0; 	this.data[0][1] = 0;
+		this.data [1][0]=5; 	this.data[1][1] = 10;
+		this.data [2][0]=20;	this.data[2][1] = 20;
+		this.data [3][0]=50;	this.data[3][1] = 40;
+
+	}
+
+	public String toString(){
+		String result = "";
+		result += "MAXSIZE = "+ this.maxSize+ "\n";
+		result += "DATA IS \n";
+		for (int i = 0; i < this.maxSize; i++){
+			for (int j = 0; j<2; j++)
+				result += this.data[i][j] + "\t";
+			result += "\n";
+		}
+		return result;
 	}
 
 
