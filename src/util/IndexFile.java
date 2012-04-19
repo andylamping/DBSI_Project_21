@@ -97,7 +97,38 @@ public class IndexFile {
 	 * TODO 
 	 * Accept Data, get hashcode
 	 */
-	public void writeToIndexFile(Object data){
+	public void writeToIndexFile(Object data, long ptr){
+		Integer destinationBucketNumber = this.getHash( data);
+		insertIntoDestinationBucket(destinationBucketNumber, data, ptr);
+	}
+	
+	
+	private void insertIntoDestinationBucket(Integer destinationBucketNumber,
+			Object data, long ptr) {
+		// TODO Auto-generated method stub
+		
+		/*
+		 *  GOTO nth bucket using formula - 
+		 *  this.currentFileOffset + (Size of each record * n);
+		 *  
+		 *  READ the entire bucket into memory, check if space exists.
+		 *  If yes, then write to memory.
+		 *  else, READ the overflow bucket into memory,
+		 *  	check if space exists.
+		 */
+		
+	}
+
+
+	public Integer getHash(Object data){
+		/*
+		 * Compute the hash value of the data.
+		 */
+		
+		// TODO divide hashcode with the appropriate
+		// function - so that the value lies within the correct 
+		// set of buckets.
+		return data.hashCode(); 
 		
 	}
 	

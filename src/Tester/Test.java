@@ -260,7 +260,7 @@ public class Test {
 				}
 
 				if(projectionList.isEmpty()){
-					//						HeapFile output = new HeapFile("output", false, heapFile.schema, heapFile.schemaArray, null);
+					//	HeapFile output = new HeapFile("output", false, heapFile.schema, heapFile.schemaArray, null);
 					String outputString = heapFile.getCertainRecordsFromHeapFile(matchingRecords);
 					System.out.println(outputString);
 					ArrayList<String> s = new ArrayList<String>();
