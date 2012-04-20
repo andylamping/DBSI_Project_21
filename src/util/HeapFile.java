@@ -211,7 +211,8 @@ public class HeapFile extends MyFile{
 		if (Config.DEBUG) System.out.println("All records written to file");
 
 	}
-	private void writeRecordAsByteToHeapFile(String record){
+	
+	public void writeRecordAsByteToHeapFile(String record){
 		Comparer comparer = new Comparer();
 		String s[] = record.split(",");
 		for (int j = 0; j<s.length ; j++){

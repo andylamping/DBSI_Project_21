@@ -84,26 +84,36 @@ public class Compare_i8 implements Compare {
 	}
 
 	@Override
-	public long writeAtOffset(String path, long offset, String data, int length) {// TODO Auto-generated method stub
+	public long writeAtOffset(RandomAccessFile raf, long offset, String data, int length) {
 
-		File f = new File(path);
 		Long dataInt = Long.parseLong(data);
 		byte tempArray [] = Helper.toByta(dataInt);
 		byte b[] = tempArray;
 		try {
-			RandomAccessFile raf = new RandomAccessFile(f, "rw");
 			raf.seek(offset);
 			raf.write(b);
-			raf.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		return 0;
+	}
+
+	@Override
+	public byte[] readAtOffset(RandomAccessFile raf, long offset, int length) {
+		byte []val = new byte [8];
+
+		try {
+			raf.seek(offset);
+			raf.read(val, 0, 8);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+		return val;
+	}
 
 }

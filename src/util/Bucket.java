@@ -31,8 +31,7 @@ public class Bucket {
 		this.overflowOffset = overflowOffset;
 		this.data = new Object [this.maxSize][2];
 	}
-
-
+	
 	public void writeBucketToFile(String path, Long offset, String datatype){
 
 		//		this.writeData(); // For testing purposes.
@@ -46,16 +45,16 @@ public class Bucket {
 			raf.write(Helper.toByta(this.maxSize));
 			raf.write(Helper.toByta(this.currentSize));
 			offset = raf.getFilePointer();
-			raf.close();
 
 			for (int i = 0; i< this.maxSize ; i ++){
 				// Use appropriate write method based on the datatype that the index file holds.
-				comparer.compare_functions[comparer.mapper.indexOf(datatype)].writeAtOffset(path, offset, this.data[i][0]+"", Integer.parseInt(datatype.substring(1)));
+				comparer.compare_functions[comparer.mapper.indexOf(datatype)].writeAtOffset(raf, offset, this.data[i][0]+"", Integer.parseInt(datatype.substring(1)));
 				offset += Integer.parseInt(datatype.substring(1));
 				// Write the pointer , right after the 
-				comparer.compare_functions[3].writeAtOffset(path,0,this.data[i][1]+"",8);
+				comparer.compare_functions[3].writeAtOffset(raf,offset,this.data[i][1]+"",8);
 				offset += 8;
 			}
+			raf.close();
 		}catch(FileNotFoundException e){
 			e.printStackTrace();
 		}catch(IOException e){
@@ -87,7 +86,7 @@ public class Bucket {
 	// TODO Implementation pending
 	public Bucket readBucketFromFile(String path, Long offset, String datatype){
 		RandomAccessFile raf;
-		Bucket temp = new Bucket(this.maxSize, (long) 0);
+		Bucket temp = new Bucket(this.maxSize, (long) -1);
 		byte[] tempData = new byte[4];
 		long tempOffset = 0;
 		Comparer comparer = new Comparer();
@@ -147,6 +146,7 @@ public class Bucket {
 	// so as to test the system.
 	public void writeData() {
 		// TODO Auto-generated method stub
+		this.setOverflowOffset((long)-1);
 		this.data [0][0]= -1; 	this.data[0][1] = -1;
 		this.data [1][0]= -1; 	this.data[1][1] = -1;
 		this.data [2][0]= -1;	this.data[2][1] = -1;

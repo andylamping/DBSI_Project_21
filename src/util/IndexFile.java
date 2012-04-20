@@ -123,6 +123,77 @@ public class IndexFile {
 
 	private void insertIntoDestinationBucket(Integer destinationBucketNumber,
 			Object data, long ptr) {
+
+		/*
+		 * Goto nth bucket using the formula
+		 * 
+		 * READ the entire bucket into memory, check if space exists.
+		 * if yes, then write to memory
+		 * else,
+		 * 		READ the overflow bucket into memory
+		 * 		check if space exists.
+		 */
+		Long destinationOffset = this.currentFileOffset + ((destinationBucketNumber)*sizeOfBucket());
+
+		Bucket d = new Bucket(this.numberOfEntriesInBucket, (long) -1);
+		d = d.readBucketFromFile(path, destinationOffset, dataType);
+		d.setOverflowOffset((long ) -1);
+		long overflowBucketStartAddress, lastOverflowBucketStartAddress = 0;
+		boolean writtenToBucket = false;
+		if (d.writeInfoToBucket(data, ptr)){
+			if (Config.DEBUG) System.out.println("Successfully entered into the same bucket");
+			writtenToBucket = true;
+			System.out.println(destinationBucketNumber + "  " + d);	
+			d.writeBucketToFile(path, destinationOffset, dataType);
+		}
+		else {
+
+			if (Config.DEBUG) System.out.println("Overflow has occured!");
+			Bucket currentBucket = d;
+			Bucket overflowBucket= new Bucket(numberOfEntriesInBucket, (long)-1) ;
+			long currentBucketStartAddress = destinationOffset;
+			
+			/*
+			 * Iterate to empty bucket.
+			 * Assumption - all Buckets are filled to the max.
+			 */
+			Iterate:
+			while ((overflowBucketStartAddress = currentBucket.getOverflowOffset()) != -1){
+				overflowBucket = overflowBucket.readBucketFromFile(overFlowPath, overflowBucketStartAddress, dataType);
+				if (overflowBucket.writeInfoToBucket(data, ptr)){
+					if (Config.DEBUG) System.out.println("Data entered to overflow bucket");
+					writtenToBucket = true;
+					overflowBucket.writeBucketToFile(overFlowPath, overflowBucketStartAddress, dataType);
+					if (Config.DEBUG) System.out.println("Inserted into pre-existing bucket " + overflowBucket);
+					break Iterate;
+				}
+				currentBucket = overflowBucket;
+				currentBucketStartAddress = overflowBucketStartAddress;
+			}
+			
+			if (!writtenToBucket){
+				overflowBucket = new Bucket(numberOfEntriesInBucket, (long)-1);
+				overflowBucket.writeData();
+				overflowBucket.writeInfoToBucket(data, ptr);
+				long newOverflowBucketStartAddress = new File(overFlowPath).length();
+				overflowBucket.writeBucketToFile(overFlowPath, newOverflowBucketStartAddress, dataType);
+				if (Config.DEBUG) System.out.println("Inserted into new bucket " + overflowBucket);
+				
+				if (currentBucket == d){
+					currentBucket.setOverflowOffset(newOverflowBucketStartAddress);
+					currentBucket.writeBucketToFile(path, currentBucketStartAddress, dataType);
+				}else{
+					currentBucket.setOverflowOffset(newOverflowBucketStartAddress);
+					currentBucket.writeBucketToFile(overFlowPath, newOverflowBucketStartAddress, dataType);
+				}
+			}
+		}
+
+
+	}
+
+	private void insertIntoDestinationBucket_OLD(Integer destinationBucketNumber,
+			Object data, long ptr) {
 		/*
 		 *  ------ DONE -----
 		 *  GOTO nth bucket using formula - 
@@ -137,12 +208,15 @@ public class IndexFile {
 
 		Long destinationOffset = this.currentFileOffset + ((destinationBucketNumber)*sizeOfBucket());
 
-		Bucket d = new Bucket(this.numberOfEntriesInBucket, null); 
+		Bucket d = new Bucket(this.numberOfEntriesInBucket, (long)-1); 
 		d = d.readBucketFromFile(path, destinationOffset, this.dataType);
 		boolean writtenToBucket = false;
 		if (d.writeInfoToBucket(data, ptr)){
 			// Successfully entered into the same bucket
 			if (Config.DEBUG) System.out.println("Successfully entered into the same bucket");
+			System.out.println(destinationBucketNumber + "  " + d);
+			d.writeBucketToFile(path, destinationOffset, dataType);
+
 
 		}else {
 			/*	No space in the current bucket.
@@ -154,12 +228,15 @@ public class IndexFile {
 			if (Config.DEBUG) System.out.println("Overflow has occurred");
 
 			Bucket nextBucket = d;
-			Long startAddress ;
-			
-			while ((startAddress = nextBucket.getOverflowOffset()) != null){
+			Long startAddress,tempAddress = destinationOffset ;
+
+			while ((startAddress = nextBucket.getOverflowOffset()) != -1){
+				System.out.println("IN MY FAVORITE WHILE LOOP");
 				nextBucket = nextBucket.readBucketFromFile(overFlowPath, startAddress, this.dataType);
 				if ( (writtenToBucket = nextBucket.writeInfoToBucket(data, ptr))){
 					nextBucket.writeBucketToFile(this.overFlowPath,startAddress , this.dataType);
+					tempAddress = startAddress;
+
 					break;
 				}
 				else continue;
@@ -169,23 +246,32 @@ public class IndexFile {
 				/*
 				 * Check if the Bucket exists in the free bucket list.
 				 */
-				if ((overFlow = Bucket.freeBuckets.get(0))!= null){
+				if (Bucket.freeBuckets.size()>0){
+					overFlow = Bucket.freeBuckets.remove(0);
 					overFlow.setCurrentSize(0);
 					overFlow.setOverflowOffset(null);
 				}else
-					overFlow = new Bucket(this.numberOfEntriesInBucket, null);
+					overFlow = new Bucket(this.numberOfEntriesInBucket, (long) -1);
+
 				nextBucket.setOverflowOffset(this.oFile.currentFileOffset);
-				overFlow.writeInfoToBucket(data, ptr);
+				System.out.println("Written at address :  " + tempAddress);
+				nextBucket.writeBucketToFile(path, tempAddress, dataType);
+				overFlow.writeData();
+
+				if (overFlow.writeInfoToBucket(data, ptr))
+					if (Config.DEBUG)
+						System.out.println("Data entered to overflow bucket!");
+
+				System.out.println("Overflow bucket written at " + this.oFile.currentFileOffset);
 				overFlow.writeBucketToFile(this.overFlowPath, this.oFile.currentFileOffset, this.dataType);
+				System.out.println("Overflow bucket ! " + overFlow);
 			}
 		}
-		System.out.println(destinationBucketNumber + "    "+ d);
-		
-		d.writeBucketToFile(path, destinationOffset, dataType);
+		//		System.out.println(destinationBucketNumber + "    "+ d);
+
 
 
 	}
-
 
 	public Integer getHash(Object data){
 		/*
@@ -202,17 +288,17 @@ public class IndexFile {
 		return b; 
 
 	}
-	
+
 	/*
 	 * Write initial buckets to the 
 	 * Index file
 	 */
 	public void writeInitialBucketsToFile (){
-		
+
 		Bucket initial ;
 		long offsetForNewBucket = this.currentFileOffset;
 		for (int i = 0; i< this.numberOfBuckets; i++){
-			initial = new Bucket(numberOfEntriesInBucket, null);
+			initial = new Bucket(numberOfEntriesInBucket, (long)-1);
 			initial.writeData();
 			initial.writeBucketToFile(this.path, offsetForNewBucket, this.dataType);
 			offsetForNewBucket += sizeOfBucket();

@@ -98,8 +98,8 @@ public class Compare_cx implements Compare {
 	}
 
 	@Override
-	public long writeAtOffset(String path, long offset, String data, int length) {
-		File f = new File(path);
+	public long writeAtOffset(RandomAccessFile raf, long offset, String data,
+			int length) {
 		byte tempArray [] = Helper.toByta(data);
 		byte b[] = new byte [length];
 		if (b.length == tempArray.length) b = tempArray;
@@ -114,10 +114,9 @@ public class Compare_cx implements Compare {
 				b[i] = 0x0;
 		}
 		try {
-			RandomAccessFile raf = new RandomAccessFile(f, "rw");
+
 			raf.seek(offset);
 			raf.write(b);
-			raf.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -126,6 +125,23 @@ public class Compare_cx implements Compare {
 			e.printStackTrace();
 		}
 
-		return 0;}
+		return 0;
+	}
+
+	@Override
+	public byte[] readAtOffset(RandomAccessFile raf, long offset, int length) {
+		byte [] val = new byte [length];
+
+		try {
+			raf.seek(offset);
+			raf.read(val,0,length);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return val;
+	}
 
 }
