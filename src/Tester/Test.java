@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
+import compare.Comparer;
+
 import util.CSVFile;
 import util.Condition;
 import util.HeapFile;
+import util.Output;
 import util.Record;
-
-import compare.Comparer;
+import util.Query;
 
 
 
@@ -47,18 +49,26 @@ public class Test {
 
 			//checking if -i token is the second argument
 			if (args[1].equals("-i")){
-
+				// now we are inserting new records into the heapfile
+				// we have two situations: building an index in addtion to adding records or just adding new records
+				int argIndex = 3;
+				int indexToBuild = Integer.MAX_VALUE;
 				// check for < token
 				if(!args[2].equals("<")){
-					System.out.println("Incorrect format. Correct format: ./Tester heap_file_path -i < example.acsv");
-					return;
+					// we are building/rebuilding an index
+					// advance index in args as we now have an additional argument -b#
+					argIndex++;
+					// parse the # in the -b#
+					indexToBuild = Integer.parseInt(args[2].substring(2));
+					
 				}
+			//	else if(args[2].equals("<")){
 
 				// check for valid .csv file extension
-				if(!args[3].contains(".acsv")){
-					System.out.println("Please enter valid .acsv file.");
-					return;
-				}
+	//			if(!args[3].contains(".acsv")){
+		//			System.out.println("Please enter valid .acsv file.");
+				//	return;
+		//		}
 
 				/**
 				 * If format is correct, we need to check if heapfile already exists.
@@ -70,7 +80,7 @@ public class Test {
 					 * If file doesn't exist, we create a new file with the 
 					 * schema from the CSV file.
 					 */
-					CSVFile csvSource = new CSVFile(args[3]);
+					CSVFile csvSource = new CSVFile(args[argIndex]);
 					csvSource.getContentsFromFile();
 					csvSource.getSchemaFromContents();
 					csvSource.getSchemaArrayFromSchema();
@@ -81,7 +91,7 @@ public class Test {
 					 * If file exists, we compare the schema of the HeapFile 
 					 * and the CSV file.
 					 */
-					CSVFile csvSource = new CSVFile(args[3], null);
+					CSVFile csvSource = new CSVFile(args[argIndex], null);
 					HeapFile hfNew = new HeapFile(args[0], true, null, null, csvSource.contents);
 					if (!(hfNew.schema.equalsIgnoreCase(csvSource.schema))) 
 						System.out.println("Error: The schema of the files do not match.");
@@ -94,13 +104,20 @@ public class Test {
 
 			}
 			else if (!args[1].equals("-i")){
-				// we want to query the file heapfile
+				// we want to either query the heapfile or build an index
+				
+				if(args[1].contains("-b")){
+					// build index
+					return;
+				}
+				else{
 				HeapFile heapFile = new HeapFile(args[0], true, null, null, null);
+
 				Query query = new Query(heapFile, args);
-				ArrayList<ArrayList<Condition>> dummyRecord  = query.dummyRecord;
-				Output output = new Output(query);
-
-
+				return;
+				}
+			
+/**
 				//ArrayList<Condition> conditionList = new ArrayList<Condition>();
 				//ArrayList<Condition> multiList = new ArrayList<Condition>();
 				ArrayList<String> projectionList = new ArrayList<String>();
@@ -159,7 +176,8 @@ public class Test {
 				} // end of conditionlist, multilist maker and projectionlist maker
 
 				// prepare heap file
-
+**/
+				/**
 				Comparer comparer = new Comparer();
 				ArrayList<Integer> matchingRecords = new ArrayList<Integer>();
 
@@ -167,12 +185,12 @@ public class Test {
 				int[] offsetList = heapFile.getOffsetList();
 
 				//				int firstListCheck = 0;
-				while(m < dummyRecords.size()){
+				while(m < query.dummyRecord.size()){
 
 					int[] compareList = new int[heapFile.schemaArray.length];
 					Record dummyRec = new Record();
 
-					compareList = dummyRec.writeDummyFile(dummyRecords.get(m), compareList, heapFile);
+					compareList = dummyRec.writeDummyFile(query.dummyRecord.get(m), compareList, heapFile);
 
 
 					// create RAF to read heapFile
@@ -205,7 +223,7 @@ public class Test {
 								int answer;
 								if(compareList[index] == 1){
 									answer = comparer.compare_functions[heapFile.schemaArray[index]].compare(dumRec, offsetList[index], heapRec, offsetList[index],lengthList[index]);
-									match = results.checkCompareResult(dummyRecords.get(m).get(condIndex1).operator, answer);
+									match = results.checkCompareResult(query.dummyRecord.get(m).get(condIndex1).operator, answer);
 									if(match == 0){
 										reject = 1;
 									}
@@ -235,22 +253,23 @@ public class Test {
 					} // end of catchers
 					m++;
 				} // end of m > 0 loop
-
+**/
+				/**
 				ArrayList<Integer> conditionedRecords = new ArrayList<Integer>();
 
 				int e = 0;
-				int matchesNeeded = dummyRecords.size() - 1;
+				int matchesNeeded = query.dummyRecord.size() - 1;
 
-				while(e < matchingRecords.size()){
+				while(e < query.matchingRecords.size()){
 					int f = e + 1;
 					int matched = 0;
 					int matches = 0;
-					while(matched == 0 && f < matchingRecords.size()){
-						if(matchingRecords.get(e).equals(matchingRecords.get(f))){
+					while(matched == 0 && f < query.matchingRecords.size()){
+						if(query.matchingRecords.get(e).equals(query.matchingRecords.get(f))){
 							matches++;
 						}
 						if(matches == matchesNeeded){
-							conditionedRecords.add(matchingRecords.get(e));
+							conditionedRecords.add(query.matchingRecords.get(e));
 							matched = 1;
 						}
 
@@ -259,37 +278,40 @@ public class Test {
 					e++;
 				}
 
-				if(dummyRecords.size() > 1){
-					matchingRecords = conditionedRecords;
+				if(query.dummyRecord.size() > 1){
+					query.matchingRecords = conditionedRecords;
 				}
-
-				if(projectionList.isEmpty()){
+**/
+				
+			
+				/**
+				if(query.projectionList.isEmpty()){
 					//	HeapFile output = new HeapFile("output", false, heapFile.schema, heapFile.schemaArray, null);
-					String outputString = heapFile.getCertainRecordsFromHeapFile(matchingRecords);
+					String outputString = heapFile.getCertainRecordsFromHeapFile(query.matchingRecords);
 					System.out.println(outputString);
 					ArrayList<String> s = new ArrayList<String>();
 					s.add(heapFile.schema+"\n");
 					s.add(outputString);
-					CSVFile output1 = new CSVFile("example_output.acsv", s);
-					output1.getSchemaFromContents();
-					output1.writeRecordToFileUsingBufferedWriter();
+					CSVFile outputCSV = new CSVFile("example_output.acsv", s);
+					outputCSV.getSchemaFromContents();
+					outputCSV.writeRecordToFileUsingBufferedWriter();
 				}
 				else{
-					String[] transfer = new String[projectionList.size()];
+					String[] transfer = new String[query.projectionList.size()];
 					// example p1, p3
 
-					for(int a = 0; a < projectionList.size(); a++){
-						transfer[a] = projectionList.get(a);
+					for(int a = 0; a < query.projectionList.size(); a++){
+						transfer[a] = query.projectionList.get(a);
 					}
 
 					// still p1, p3 but in array
-					int[] columns = new int[projectionList.size()];
-					for (int b=0; b < projectionList.size(); b++){
+					int[] columns = new int[query.projectionList.size()];
+					for (int b=0; b < query.projectionList.size(); b++){
 						columns[b] =  Integer.parseInt(transfer[b].substring(transfer[b].length()-1));
 					}
 					// now [1,3]
 
-					for(int c = 0; c < projectionList.size(); c++){
+					for(int c = 0; c < query.projectionList.size(); c++){
 						columns[c] = columns[c] - 1;
 					}
 					// now [0,2] to correspond to schema
@@ -317,14 +339,16 @@ public class Test {
 					csvTarget.getSchemaFromContents();
 					csvTarget.writeRecordToFileUsingBufferedWriter();
 				}
+// 2be87e762873cd632141416b87b4b55ca95a9709
 
-
+**/
 			} // end of query brackets
 
 
 
 		} // end of args.length > 1
+		
+		}
 	} // end of main
-} // end of class
 
 
