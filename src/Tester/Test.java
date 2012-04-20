@@ -104,11 +104,18 @@ public class Test {
 
 			}
 			else if (!args[1].equals("-i")){
-				// we want to query the file heapfile
+				// we want to either query the heapfile or build an index
+				
+				if(args[1].contains("-b")){
+					// build index
+					return;
+				}
+				else{
 				HeapFile heapFile = new HeapFile(args[0], true, null, null, null);
 
 				Query query = new Query(heapFile, args);
 				return;
+				}
 			
 /**
 				//ArrayList<Condition> conditionList = new ArrayList<Condition>();
