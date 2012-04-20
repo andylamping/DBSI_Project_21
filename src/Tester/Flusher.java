@@ -31,7 +31,7 @@ public class Flusher {
 		indexFileTest.writeHeaderInformationToFile();
 		indexFileTest.writeInitialBucketsToFile();
 		long ptr = 0;
-		for (int i = 0; i<10; i++){
+		for (int i = 0; i<20; i++){
 			indexFileTest.writeToIndexFile(0, ptr);
 			ptr +=10;
 		}

@@ -44,6 +44,7 @@ public class Bucket {
 
 			raf.write(Helper.toByta(this.maxSize));
 			raf.write(Helper.toByta(this.currentSize));
+			raf.write(Helper.toByta(this.overflowOffset));
 			offset = raf.getFilePointer();
 
 			for (int i = 0; i< this.maxSize ; i ++){
@@ -88,6 +89,7 @@ public class Bucket {
 		RandomAccessFile raf;
 		Bucket temp = new Bucket(this.maxSize, (long) -1);
 		byte[] tempData = new byte[4];
+		byte[] tempOffsetAddress = new byte [8];
 		long tempOffset = 0;
 		Comparer comparer = new Comparer();
 		try{
@@ -98,6 +100,9 @@ public class Bucket {
 			temp.maxSize = Helper.toInt(tempData);
 			raf.read(tempData);
 			temp.currentSize = Helper.toInt(tempData);
+			
+			raf.read(tempOffsetAddress);
+			temp.overflowOffset = Helper.toLong(tempOffsetAddress);
 			tempOffset = raf.getFilePointer();
 			raf.close();
 
@@ -105,7 +110,6 @@ public class Bucket {
 				temp.data[i][0] = comparer.compare_functions[comparer.mapper.indexOf(datatype)].readString(path, (int) tempOffset, Integer.parseInt(datatype.substring(1)));
 				tempOffset += Integer.parseInt(datatype.substring(1));
 				
-				// TODO RECTIFY ERROR
 				temp.data[i][1] = comparer.compare_functions[3].readString(path, (int) tempOffset, 8);
 				tempOffset += 8;
 			}

@@ -137,7 +137,7 @@ public class IndexFile {
 
 		Bucket d = new Bucket(this.numberOfEntriesInBucket, (long) -1);
 		d = d.readBucketFromFile(path, destinationOffset, dataType);
-		d.setOverflowOffset((long ) -1);
+
 		long overflowBucketStartAddress, lastOverflowBucketStartAddress = 0;
 		boolean writtenToBucket = false;
 		if (d.writeInfoToBucket(data, ptr)){
@@ -175,7 +175,8 @@ public class IndexFile {
 				overflowBucket = new Bucket(numberOfEntriesInBucket, (long)-1);
 				overflowBucket.writeData();
 				overflowBucket.writeInfoToBucket(data, ptr);
-				long newOverflowBucketStartAddress = new File(overFlowPath).length();
+				File f = new File(overFlowPath);
+				long newOverflowBucketStartAddress = f.length();
 				overflowBucket.writeBucketToFile(overFlowPath, newOverflowBucketStartAddress, dataType);
 				if (Config.DEBUG) System.out.println("Inserted into new bucket " + overflowBucket);
 				
@@ -184,7 +185,7 @@ public class IndexFile {
 					currentBucket.writeBucketToFile(path, currentBucketStartAddress, dataType);
 				}else{
 					currentBucket.setOverflowOffset(newOverflowBucketStartAddress);
-					currentBucket.writeBucketToFile(overFlowPath, newOverflowBucketStartAddress, dataType);
+					currentBucket.writeBucketToFile(overFlowPath, currentBucketStartAddress, dataType);
 				}
 			}
 		}
