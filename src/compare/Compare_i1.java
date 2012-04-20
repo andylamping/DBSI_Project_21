@@ -85,5 +85,30 @@ public class Compare_i1 implements Compare{
 		return (Helper.toInt1(read (path, offset, length)) +"");
 	}
 
+	@Override
+	public long writeAtOffset(String path, long offset, String data, int length) {
+		// TODO Auto-generated method stub
+
+		File f = new File(path);
+		int dataInt = Integer.parseInt(data);
+		byte tempArray [] = Helper.toByta(dataInt);
+		byte b[] = new byte[1];
+		b[0] = tempArray[3];
+		try {
+			RandomAccessFile raf = new RandomAccessFile(f, "rw");
+			raf.seek(offset);
+			raf.write(b);
+			raf.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return 0;
+	}
+
 
 }

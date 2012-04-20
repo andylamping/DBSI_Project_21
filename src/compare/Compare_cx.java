@@ -97,4 +97,35 @@ public class Compare_cx implements Compare {
 		return Helper.toString(read(path, offset, length));
 	}
 
+	@Override
+	public long writeAtOffset(String path, long offset, String data, int length) {
+		File f = new File(path);
+		byte tempArray [] = Helper.toByta(data);
+		byte b[] = new byte [length];
+		if (b.length == tempArray.length) b = tempArray;
+		else if (b.length < tempArray.length){
+			for (int i = 0 ; i<b.length ; i++)
+				b[i] = tempArray[i];
+		}
+		else if (b.length > tempArray.length){
+			for (int i = 0 ; i<tempArray.length ; i++)
+				b[i] = tempArray[i];
+			for (int i=tempArray.length; i<b.length; i++)
+				b[i] = 0x0;
+		}
+		try {
+			RandomAccessFile raf = new RandomAccessFile(f, "rw");
+			raf.seek(offset);
+			raf.write(b);
+			raf.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return 0;}
+
 }

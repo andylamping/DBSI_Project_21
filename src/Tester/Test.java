@@ -1,10 +1,16 @@
 package Tester;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 import util.CSVFile;
 import util.Condition;
 import util.HeapFile;
+import util.Record;
+
+import compare.Comparer;
 
 
 
@@ -90,12 +96,10 @@ public class Test {
 			else if (!args[1].equals("-i")){
 				// we want to query the file heapfile
 				HeapFile heapFile = new HeapFile(args[0], true, null, null, null);
-<<<<<<< HEAD
 				Query query = new Query(heapFile, args);
 				ArrayList<ArrayList<Condition>> dummyRecord  = query.dummyRecord;
 				Output output = new Output(query);
-			
-=======
+
 
 				//ArrayList<Condition> conditionList = new ArrayList<Condition>();
 				//ArrayList<Condition> multiList = new ArrayList<Condition>();
@@ -266,9 +270,9 @@ public class Test {
 					ArrayList<String> s = new ArrayList<String>();
 					s.add(heapFile.schema+"\n");
 					s.add(outputString);
-					CSVFile output = new CSVFile("example_output.acsv", s);
-					output.getSchemaFromContents();
-					output.writeRecordToFileUsingBufferedWriter();
+					CSVFile output1 = new CSVFile("example_output.acsv", s);
+					output1.getSchemaFromContents();
+					output1.writeRecordToFileUsingBufferedWriter();
 				}
 				else{
 					String[] transfer = new String[projectionList.size()];
@@ -313,7 +317,6 @@ public class Test {
 					csvTarget.getSchemaFromContents();
 					csvTarget.writeRecordToFileUsingBufferedWriter();
 				}
->>>>>>> 2be87e762873cd632141416b87b4b55ca95a9709
 
 
 			} // end of query brackets

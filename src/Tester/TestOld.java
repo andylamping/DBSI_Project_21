@@ -14,7 +14,7 @@ import compare.Comparer;
 
 
 
-public class Test {
+public class TestOld {
 
 	public static void main (String args[]){
 

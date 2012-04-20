@@ -22,6 +22,7 @@ public class Bucket {
 	private Long overflowOffset;
 	public Object [][] data;
 
+	public static Integer numberOfEntriesInBucket = 4;
 
 	public Bucket(Integer maxSize,Long overflowOffset){
 
@@ -44,13 +45,16 @@ public class Bucket {
 
 			raf.write(Helper.toByta(this.maxSize));
 			raf.write(Helper.toByta(this.currentSize));
+			offset = raf.getFilePointer();
 			raf.close();
 
 			for (int i = 0; i< this.maxSize ; i ++){
 				// Use appropriate write method based on the datatype that the index file holds.
-				comparer.compare_functions[comparer.mapper.indexOf(datatype)].write(path, 0, this.data[i][0]+"", Integer.parseInt(datatype.substring(1)));
+				comparer.compare_functions[comparer.mapper.indexOf(datatype)].writeAtOffset(path, offset, this.data[i][0]+"", Integer.parseInt(datatype.substring(1)));
+				offset += Integer.parseInt(datatype.substring(1));
 				// Write the pointer , right after the 
-				comparer.compare_functions[3].write(path,0,this.data[i][1]+"",8);
+				comparer.compare_functions[3].writeAtOffset(path,0,this.data[i][1]+"",8);
+				offset += 8;
 			}
 		}catch(FileNotFoundException e){
 			e.printStackTrace();
@@ -63,8 +67,7 @@ public class Bucket {
 		if (this.currentSize == this.maxSize){
 			/*
 			 * Bucket is full
-			 * TODO Create a overflow bucket
-			 * return false
+			 * TODO Overflow logic
 			 */
 			return false;
 		}else {
@@ -102,6 +105,8 @@ public class Bucket {
 			for (int i = 0; i< this.maxSize ; i++){
 				temp.data[i][0] = comparer.compare_functions[comparer.mapper.indexOf(datatype)].readString(path, (int) tempOffset, Integer.parseInt(datatype.substring(1)));
 				tempOffset += Integer.parseInt(datatype.substring(1));
+				
+				// TODO RECTIFY ERROR
 				temp.data[i][1] = comparer.compare_functions[3].readString(path, (int) tempOffset, 8);
 				tempOffset += 8;
 			}
@@ -142,10 +147,10 @@ public class Bucket {
 	// so as to test the system.
 	public void writeData() {
 		// TODO Auto-generated method stub
-		this.data [0][0]=0; 	this.data[0][1] = 0;
-		this.data [1][0]=5; 	this.data[1][1] = 10;
-		this.data [2][0]=20;	this.data[2][1] = 20;
-		this.data [3][0]=50;	this.data[3][1] = 40;
+		this.data [0][0]= -1; 	this.data[0][1] = -1;
+		this.data [1][0]= -1; 	this.data[1][1] = -1;
+		this.data [2][0]= -1;	this.data[2][1] = -1;
+		this.data [3][0]= -1;	this.data[3][1] = -1;
 
 	}
 

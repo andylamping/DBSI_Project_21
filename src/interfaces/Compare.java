@@ -13,5 +13,7 @@ public int write (String path, byte data, int offset, int length);
 
 public long write (String path, long offset, String data, int length);
 
+public long writeAtOffset(String path, long offset, String data, int length);
+
 public String readString (String path, int offset, int length);
 }
