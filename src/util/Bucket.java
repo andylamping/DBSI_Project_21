@@ -186,13 +186,11 @@ public class Bucket {
 		// this resets a bucket 
 	// called by split after all elements from the bucket have been plucked
 	public void resetBucket(String path, long offset, String datatype){
-		this.setOverflowOffset((long)-1);
+		
+
+		this.writeData();
 		this.setNumberOfOverflowBuckets(0);
 		this.setCurrentSize(0);
-		this.data [0][0]= -1; 	this.data[0][1] = -1;
-		this.data [1][0]= -1; 	this.data[1][1] = -1;
-		this.data [2][0]= -1;	this.data[2][1] = -1;
-		this.data [3][0]= -1;	this.data[3][1] = -1;
 		this.writeBucketToFile(path, offset, datatype);
 		
 		
