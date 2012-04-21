@@ -35,6 +35,10 @@ public class Flusher {
 			indexFileTest.writeToIndexFile(0, ptr);
 			ptr +=10;
 		}
+		File f1 = new File("indexFILE");
+		f1.delete();
+		File f2 = new File("overflowFile");
+		f2.delete();
 	}
 
 

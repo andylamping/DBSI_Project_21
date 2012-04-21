@@ -24,11 +24,16 @@ public class Query {
 	public Query(HeapFile inputHeap, String[] arguments) {
 		this.heapFile = inputHeap;
 		this.args = arguments;
+		this.argIndex = 1;
+	       this.projectionList = new ArrayList<String>();
 		this.dummyRecord  = new ArrayList<ArrayList<Condition>>();
 		this.addConditions();
 		this.addProjections();
-		this.argIndex = 1;
-		this.projectionList = new ArrayList<String>();
+		this.findMatchingRecords();
+		Output output = new Output(this);
+		
+		
+	
 		
 	}
 
@@ -99,7 +104,7 @@ public class Query {
 
 
 
-	public ArrayList<Integer> findMatchingRecords() {
+	private void findMatchingRecords() {
 		Comparer comparer = new Comparer();
 		this.matchingRecords = new ArrayList<Integer>();
 		int m =  0;
@@ -175,7 +180,7 @@ public class Query {
 			m++;
 		} // end of m > 0 loop
 		
-		return this.matchingRecords;
+		
 	}
 		
 }
