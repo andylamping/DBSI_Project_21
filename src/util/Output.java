@@ -9,6 +9,8 @@ public class Output {
 	private int[] offsetList;
 	public Output(Query inputQuery){
 		this.query = inputQuery;
+		removeDuplicates();
+		outputFile();
 	}
 	
 	// removes duplicate records from the list of matching records

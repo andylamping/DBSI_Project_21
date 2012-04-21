@@ -19,6 +19,9 @@ public class IndexFile {
 	private Integer columnLength;
 	private Integer headerLength = 12;
 	private Integer numberOfBuckets = 4;
+	private Integer startBuckets = 4;
+	private Integer round = 1;
+	private Integer splitting = 0;
 	private Integer numberOfEntriesInBucket = Bucket.numberOfEntriesInBucket;
 	public OverflowFile oFile; 
 
@@ -119,6 +122,7 @@ public class IndexFile {
 	 */
 	public void writeToIndexFile(Object data, long ptr){
 		Integer destinationBucketNumber = this.getHash( data);
+		System.out.println("Inserting " + data + " into bucket:" + destinationBucketNumber);
 		insertIntoDestinationBucket(destinationBucketNumber, data, ptr);
 	}
 
@@ -135,7 +139,7 @@ public class IndexFile {
 		 * 		READ the overflow bucket into memory
 		 * 		check if space exists.
 		 */
-		Long destinationOffset = this.currentFileOffset + ((destinationBucketNumber)*sizeOfBucket());
+		Long destinationOffset = this.headerLength + (long) ((destinationBucketNumber)*sizeOfBucket());
 
 		Bucket d = new Bucket(this.numberOfEntriesInBucket, (long) -1);
 		d = d.readBucketFromFile(path, destinationOffset, dataType);
@@ -167,11 +171,14 @@ public class IndexFile {
 					writtenToBucket = true;
 					overflowBucket.writeBucketToFile(overFlowPath, overflowBucketStartAddress, dataType);
 					if (Config.DEBUG) System.out.println("Inserted into pre-existing bucket " + overflowBucket);
-					System.out.println("A split must occur.");
-					this.split();
+					
+					if(this.splitting == 0){
+						System.out.println("A split must occur.");
+							this.split();}
 					break Iterate;
 				}
 				currentBucket = overflowBucket;
+			//	System.out.println("STUCK");
 				currentBucketStartAddress = overflowBucketStartAddress;
 			}
 			
@@ -188,15 +195,19 @@ public class IndexFile {
 					currentBucket.setOverflowOffset(newOverflowBucketStartAddress);
 				    currentBucket.setNumberOfOverflowBuckets(currentBucket.getNumberOfOverflowBuckets()+1);
 					currentBucket.writeBucketToFile(path, currentBucketStartAddress, dataType);
-					System.out.println("A split must occur.");
-					this.split();
+					System.out.println("A split must occur!");
+					if(this.splitting == 0){
+						System.out.println("A split must occur.");
+							this.split();}
 				}else{
 					d.setNumberOfOverflowBuckets(d.getNumberOfOverflowBuckets() +1);
 					d.writeBucketToFile(path, destinationOffset, dataType); 
 					currentBucket.setOverflowOffset(newOverflowBucketStartAddress);
 					currentBucket.writeBucketToFile(overFlowPath, currentBucketStartAddress, dataType);
-					System.out.println("A split must occur.");
-					this.split();
+					System.out.println("A split must occur!!");
+					if(this.splitting == 0){
+						System.out.println("A split must occur.");
+							this.split();}
 				}
 			}
 		}
@@ -293,12 +304,18 @@ public class IndexFile {
 		// TODO divide hashcode with the appropriate
 		// function - so that the value lies within the correct 
 		// set of buckets.
-
+/**
 		Integer b = data.hashCode() % this.numberOfBuckets;
-		if (b < this.nextPointer)
+		if (b < this.nextPointer){
+			System.out.println("WEIRD!!!!!!!!");
 			b = data.hashCode() % (2*this.numberOfBuckets);
+		}
 		return b; 
-
+		**/
+		Integer b = data.hashCode() % this.numberOfBuckets;
+		if(b < this.nextPointer)
+			b = data.hashCode() % (2 * this.numberOfBuckets);
+		return b;
 	}
 
 	/*
@@ -320,8 +337,12 @@ public class IndexFile {
 	 * Split the bucket n
 	 */
 	public void split(){
+		this.splitting = 1;
 		// increase number of buckets in index file
-		this.numberOfBuckets++;
+		
+		Bucket freshBucket = new Bucket(numberOfEntriesInBucket, (long) -1);
+		freshBucket.writeData();
+		freshBucket.writeBucketToFile(this.path, this.headerLength + (long) this.numberOfBuckets * sizeOfBucket(), this.dataType);
 
 		// set the offset for the current this.nextPointer bucket
 		long offsetSplit = this.headerLength + this.nextPointer * sizeOfBucket();
@@ -336,48 +357,60 @@ public class IndexFile {
 		
 		// get all data items from index bucket
 		while ( index < splitBucket.getCurrentSize()){
-			Object pluck = splitBucket.data[index][1];
-			//	currentContents.add(pluck);
-				System.out.println(pluck);
+			Object pluck = splitBucket.data[index][0];
+				currentContents.add(pluck);
+		//		System.out.println(pluck);
 			index++;
 			
 		}
-		// set index bucket size to 0
-		splitBucket.setCurrentSize(0);
+		 
+	
 		// get al
-		int overFlowBucket = 0;
+		int overFlowBucket1 = 0;
+		System.out.println("OVERFLOWWWWSS" + splitBucket.getNumberOfOverflowBuckets());
 		// traverse each overflow bucket
-		while(overFlowBucket < splitBucket.getNumberOfOverflowBuckets()){
-			Bucket overflowBucket = splitBucket.readBucketFromFile(this.overFlowPath, splitBucket.getOverflowOffset() - overFlowBucket * sizeOfBucket(), this.dataType);
-			overflowBucket.setCurrentSize(0);
-			splitBucket.freeBuckets.add(overflowBucket);
+		while(overFlowBucket1 < splitBucket.getNumberOfOverflowBuckets()){
+			System.out.println("enter");
+			Bucket overflowBucket = splitBucket.readBucketFromFile(this.overFlowPath, splitBucket.getOverflowOffset() - overFlowBucket1 * sizeOfBucket(), this.dataType);
+
+		
 			index = 0;
 
 			// add all elements from the overflow bucket
 			while ( index < overflowBucket.getCurrentSize()){
-				Object pluck = overflowBucket.data[index];
+				Object pluck = overflowBucket.data[index][0];
 				currentContents.add(pluck);
 				System.out.println("Overflow item " + pluck);
 				index++;
 			}
 		
-			overFlowBucket++;
+			// reset this overflow bucket
+			splitBucket.resetBucket(this.overFlowPath, splitBucket.getOverflowOffset() - overFlowBucket1 * sizeOfBucket(), this.dataType);
+			splitBucket.freeBuckets.add(overflowBucket);
+			overFlowBucket1++;
 		}
 		// all contents of bucket to be split and its overflow buckets now in currentContents
-		
+		splitBucket.resetBucket(this.path, this.headerLength + (long) this.nextPointer * sizeOfBucket(), this.dataType);
 		index = 0;
-		
+		System.out.println("Rehashing bucket");
+		this.nextPointer++;
 		while(index < currentContents.size()){
 			System.out.println("Overflow!" + index);
 			Object data = currentContents.get(index);
 			int hash = getHash(data);
+			System.out.println("New hash " + hash);
 			this.writeToIndexFile(data, 0);
 			index++;	
 		}
 		
 		
-		this.nextPointer++;
 		
+		if(this.nextPointer == this.numberOfBuckets * (this.round + 1) - 1){
+			this.nextPointer = 0;
+			this.numberOfBuckets *= 2;
+			this.round++;
+		}
+	
 	}
 
 	/* Getter and Setters */
