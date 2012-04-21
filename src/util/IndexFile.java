@@ -40,9 +40,9 @@ public class IndexFile {
 
 	public Integer sizeOfBucket(){
 		/* 
-		 * Integer - maxSize + currentSize + Long - OffsetPointer + size of the 2D Object Data array 
+		 * Integer - maxSize + currentSize + number of Buckets +Long - OffsetPointer + size of the 2D Object Data array 
 		 */
-		return (4 + 4 + 8 +(this.numberOfEntriesInBucket * (this.columnLength + 8)));
+		return (4 + 4 + 4 +8 +(this.numberOfEntriesInBucket * (this.columnLength + 8)));
 	}
 
 	public void writeHeaderInformationToFile (){
@@ -182,8 +182,11 @@ public class IndexFile {
 				
 				if (currentBucket == d){
 					currentBucket.setOverflowOffset(newOverflowBucketStartAddress);
+					currentBucket.setNumberOfOverflowBuckets(currentBucket.getNumberOfOverflowBuckets()+1);
 					currentBucket.writeBucketToFile(path, currentBucketStartAddress, dataType);
 				}else{
+					d.setNumberOfOverflowBuckets(d.getNumberOfOverflowBuckets() +1);
+					d.writeBucketToFile(path, destinationOffset, dataType);
 					currentBucket.setOverflowOffset(newOverflowBucketStartAddress);
 					currentBucket.writeBucketToFile(overFlowPath, currentBucketStartAddress, dataType);
 				}

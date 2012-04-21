@@ -20,6 +20,7 @@ public class Bucket {
 	private Integer maxSize;
 	private Integer currentSize;
 	private Long overflowOffset;
+	private Integer numberOfOverflowBuckets = 0;
 	public Object [][] data;
 
 	public static Integer numberOfEntriesInBucket = 4;
@@ -44,6 +45,7 @@ public class Bucket {
 
 			raf.write(Helper.toByta(this.maxSize));
 			raf.write(Helper.toByta(this.currentSize));
+			raf.write(Helper.toByta(this.numberOfOverflowBuckets));
 			raf.write(Helper.toByta(this.overflowOffset));
 			offset = raf.getFilePointer();
 
@@ -100,6 +102,8 @@ public class Bucket {
 			temp.maxSize = Helper.toInt(tempData);
 			raf.read(tempData);
 			temp.currentSize = Helper.toInt(tempData);
+			raf.read(tempData);
+			temp.numberOfOverflowBuckets = Helper.toInt(tempData);
 			
 			raf.read(tempOffsetAddress);
 			temp.overflowOffset = Helper.toLong(tempOffsetAddress);
@@ -146,6 +150,14 @@ public class Bucket {
 		this.currentSize = currentSize;
 	}
 
+	public Integer getNumberOfOverflowBuckets() {
+		return numberOfOverflowBuckets;
+	}
+
+	public void setNumberOfOverflowBuckets(Integer numberOfOverflowBuckets) {
+		this.numberOfOverflowBuckets = numberOfOverflowBuckets;
+	}
+
 	// Inserts dummy values into the data of the bucket 
 	// so as to test the system.
 	public void writeData() {
@@ -161,8 +173,9 @@ public class Bucket {
 	public String toString(){
 		String result = "";
 		result += "MAXSIZE = "+ this.maxSize+ "\n";
+		result += "NUMBER OF OVERFLOW BUCKETS ARE " +this.numberOfOverflowBuckets +"\n";
 		result += "DATA IS \n";
-		for (int i = 0; i < this.maxSize; i++){
+				for (int i = 0; i < this.maxSize; i++){
 			for (int j = 0; j<2; j++)
 				result += this.data[i][j] + "\t";
 			result += "\n";
