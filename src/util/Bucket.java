@@ -50,8 +50,12 @@ public class Bucket {
 			offset = raf.getFilePointer();
 
 			for (int i = 0; i< this.maxSize ; i ++){
+				if(datatype.contains("c")){
+					comparer.compare_functions[6].writeAtOffset(raf, offset, this.data[i][0]+"", Integer.parseInt(datatype.substring(1)));
+				}
 				// Use appropriate write method based on the datatype that the index file holds.
-				comparer.compare_functions[comparer.mapper.indexOf(datatype)].writeAtOffset(raf, offset, this.data[i][0]+"", Integer.parseInt(datatype.substring(1)));
+				else
+					comparer.compare_functions[comparer.mapper.indexOf(datatype)].writeAtOffset(raf, offset, this.data[i][0]+"", Integer.parseInt(datatype.substring(1)));
 				offset += Integer.parseInt(datatype.substring(1));
 				// Write the pointer , right after the 
 				comparer.compare_functions[3].writeAtOffset(raf,offset,this.data[i][1]+"",8);
@@ -88,6 +92,11 @@ public class Bucket {
 	}
 	// TODO Implementation pending
 	public Bucket readBucketFromFile(String path, Long offset, String datatype){
+		
+		// If offset is -1 , return null
+		// Since the bucket cannot be read.
+		if (offset == -1) return null;
+		
 		RandomAccessFile raf;
 		Bucket temp = new Bucket(this.maxSize, (long) -1);
 		byte[] tempData = new byte[4];
@@ -111,7 +120,11 @@ public class Bucket {
 			raf.close();
 
 			for (int i = 0; i< this.maxSize ; i++){
-				temp.data[i][0] = comparer.compare_functions[comparer.mapper.indexOf(datatype)].readString(path, (int) tempOffset, Integer.parseInt(datatype.substring(1)));
+				if(datatype.contains("c")){
+					temp.data[i][0] = comparer.compare_functions[6].readString(path, (int) tempOffset, Integer.parseInt(datatype.substring(1)));
+				}
+				else
+					temp.data[i][0] = comparer.compare_functions[comparer.mapper.indexOf(datatype)].readString(path, (int) tempOffset, Integer.parseInt(datatype.substring(1)));
 				tempOffset += Integer.parseInt(datatype.substring(1));
 				
 				temp.data[i][1] = comparer.compare_functions[3].readString(path, (int) tempOffset, 8);
@@ -182,21 +195,20 @@ public class Bucket {
 		}
 		return result;
 	}
-	
-		// this resets a bucket 
+	// this resets a bucket 
 	// called by split after all elements from the bucket have been plucked
 	public void resetBucket(String path, long offset, String datatype){
-		
-
-		this.writeData();
+		this.setOverflowOffset((long)-1);
 		this.setNumberOfOverflowBuckets(0);
 		this.setCurrentSize(0);
+		this.data [0][0]= -1; 	this.data[0][1] = -1;
+		this.data [1][0]= -1; 	this.data[1][1] = -1;
+		this.data [2][0]= -1;	this.data[2][1] = -1;
+		this.data [3][0]= -1;	this.data[3][1] = -1;
 		this.writeBucketToFile(path, offset, datatype);
 		
 		
 	}
-
-
 
 
 }
